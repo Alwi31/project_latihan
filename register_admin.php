@@ -1,0 +1,137 @@
+<?php
+session_start();
+include "koneksi.php";
+if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
+    header("Location: login.php");
+    exit;
+}
+
+$sukses = $error = "";
+
+if (isset($_POST['register'])) {
+    $username           = mysqli_real_escape_string($koneksi, $_POST['username']);
+    $password           = $_POST['password'];
+    $confirm_password   = $_POST['confirm_password'];
+
+    // Validasi
+    if (empty($username) || empty($password)) {
+        $error = "Semua field harus diisi!";
+    } elseif ($password != $confirm_password) {
+        $error = "Password Tidak Cocok!";
+    } elseif (strlen($password) < 8) {
+        $error = "Password harus minimal 8 karakter!";
+    } else {
+        // Cek Username/email Sudah Ada
+        $check = mysqli_query($koneksi, "SELECT * FROM admin WHERE username = '$username'");
+        if (mysqli_num_rows($check) > 0) {
+            $error = "Username sudah terdaftar..!";
+        } else {
+            // Hash Password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+            // Simpan ke Database
+            $sql = "INSERT INTO admin (username, password) VALUES ('$username', '$hashed_password')";
+            if (mysqli_query($koneksi, $sql)) {
+                $sukses = "Registrasi Berhasil, Silakan Login.";
+                header("refresh:2;url=index.php");
+            } else {
+                $error = "Gagal Registrasi: " . mysqli_error($koneksi);
+            }
+        }
+        $result = mysqli_query($koneksi, "SELECT COUNT(*) as total FROM user");
+        $row    = mysqli_fetch_assoc($result);
+        if ($row['total'] == 0) {
+            $username   = "admin";
+            $password   = "admin123"; //Passwod default
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            mysqli_query($koneksi, "INSERT INTO admin (username, password) VALUES ('$username', '$hashed_password')");
+        }
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Form Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .register-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: whitesmoke;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-header h2 {
+            color: #343a40;
+            font-weight: bold;
+        }
+
+        .btn.register {
+            background-color: #6c757d;
+            border: none;
+            width: 100%;
+            padding: 30px;
+            font-weight: bold;
+        }
+
+        .btn.register:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="register-container">
+            <div class="register-header">
+                <h2>REGISTER AKUN ADMIN</h2>
+            </div>
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger"><?= $error ?></div>
+            <?php endif; ?>
+
+            <?php if ($sukses && !isset($_SESSION['login'])): ?>
+                <div class="alert alert-success"><?= $sukses ?></div>
+            <?php endif; ?>
+
+            <form action="register_admin.php" method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+                <button type="submit" name="register" class="btn btn-register btn-primary w-100">Register</button>
+            </form>
+            <div class="text-center mt-3">
+                Sudah punya akun? <a href="login.php">Login Disini</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

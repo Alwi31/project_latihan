@@ -1,0 +1,47 @@
+/* body{
+	/* font-family:'Times New Roman', Times, serif; 
+	color: #000;
+} */
+
+/* .judul {
+  padding: 10px;
+  background: #87d1d8;
+  text-align: center;
+} */
+
+/* .judul h1 {
+  height: 40px;
+} */
+
+.mx-auto {
+  width: 800px;
+}
+
+.card {
+  margin-top: 10px;
+}
+
+a {
+  /* color: #fff;  */
+  padding: 5px;
+  text-decoration: none;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+}
+
+table.table th th,
+table.table tr td {
+  padding: 10px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top;
+}
+
+/* .tom {
+
+	/* box-shadow: 0 0 20px #0ef; 
+} */
