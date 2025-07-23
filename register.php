@@ -24,12 +24,13 @@ if (isset($_POST['register'])) {
             $error = "Username atau email sudah terdaftar..!";
         } else {
             // Hash Password
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             // Simpan ke Database
-            $sql = "INSERT INTO user (username, email, password) VALUES ('$username', '$email', '$hashed_password')";
+            $sql = "INSERT INTO user (username, email, password) VALUES ('$username', '$email', '$password')";
             if (mysqli_query($koneksi, $sql)) {
                 $sukses = "Registrasi Berhasil, Silakan Login.";
+                header("refresh:2;url=login.php");
             } else {
                 $error = "Gagal Registrasi: " . mysqli_error($koneksi);
             }
@@ -39,8 +40,8 @@ if (isset($_POST['register'])) {
         if ($row['total'] == 0) {
             $username   = "admin";
             $password   = "admin123"; //Passwod default
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            mysqli_query($koneksi, "INSERT INTO user (username, password) VALUES ('$username', '$hashed_password')");
+            // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            mysqli_query($koneksi, "INSERT INTO user (username, password) VALUES ('$username', '$password')");
         }
     }
 }
@@ -53,6 +54,7 @@ if (isset($_POST['register'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
@@ -90,6 +92,35 @@ if (isset($_POST['register'])) {
         .btn.register:hover {
             background-color: #5a6268;
         }
+
+        /* CSS Password Toggle */
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+
+        .password-toggle:hover {
+            color: #495057;
+        }
+
+        .form-control {
+            padding-right: 40px;
+        }
+
+        .form-control::placeholder {
+            color: #a0a0a0;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -111,19 +142,25 @@ if (isset($_POST['register'])) {
             <form action="register.php" method="post">
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan Username" required>
                 </div>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
-                    <input type="text" class="form-control" id="email" name="email" required>
+                    <input type="text" class="form-control" id="email" name="email" placeholder="Masukkan Email" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="password-field">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan Password" required>
+                        <i class="bi bi-eye-slash password-toggle" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="confirm_password" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    <div class="password-field">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                        <i class="bi bi-eye-slash password-toggle" id="toggleConfirmPassword" onclick="togglePasswordVisibility('confirm_password', 'toggleConfirmPassword')"></i>
+                    </div>
                 </div>
                 <button type="submit" name="register" class="btn btn-register btn-primary w-100">Register</button>
             </form>
@@ -132,6 +169,22 @@ if (isset($_POST['register'])) {
             </div>
         </div>
     </div>
+    <script>
+        function togglePasswordVisibility(inputId, toggleId) {
+            const passwordField = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(toggleId);
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        }
+    </script>
 </body>
 
 </html>

@@ -6,6 +6,17 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
     header("Location: login.php");
     exit;
 }
+
+// $sql = "SELECT * FROM produk ORDER BY id DESC";
+// $result = mysqli_query($koneksi, $sql);
+// $number = 1;
+// while ($row = mysqli_fetch_array($result)) {
+//     $id         = $row['ID'];
+//     $nama       = $row['Nama_Buku'];
+//     $harga      = $row['Harga'];
+//     $stok       = $row['Stok'];
+//     $foto       = $row['Foto'];
+// }
 ?>
 
 <!DOCTYPE html>
@@ -21,6 +32,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
     <link rel="stylesheet" type="text/css" href="icomoon/icomoon.css">
     <link rel="stylesheet" type="text/css" href="css/vendor.css">
     <link rel="stylesheet" type="text/css" href="style.css">
+    <!-- <link rel="stylesheet" href="css/sticky-logo.css"> -->
 
 </head>
 
@@ -52,16 +64,16 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
         <div class="container-fluid">
             <div class="row">
 
-                <div class="col-md-2">
-                    <div class="main-logo">
+                <div class="col-md-1" style="margin-left: 10px;">
+                    <div class="main-logo" style="height: 1px;">
                         <?php
                         // Cek apakah session login ada
                         if (isset($_SESSION['login'])) {
                             // Jika sudah login, arahkan ke view.php
-                            echo '<a href="view.php"><img src="images/main-logo.png" alt="logo"></a>';
+                            echo '<a href="view.php"><img src="images/logo-view-awal-removebg-preview.png" alt="logo"></a>';
                         } else {
                             // Jika belum login, arahkan ke index.php
-                            echo '<a href="index.php"><img src="images/main-logo.png" alt="logo"></a>';
+                            echo '<a href="index.php"><img src="images/logo-view-awal-removebg-preview.png" alt="logo"></a>';
                         }
                         ?>
                     </div>
@@ -72,18 +84,14 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
                     <nav id="navbar">
                         <div class="main-menu stellarnav">
                             <ul class="menu-list">
-                                <li class="menu-item active"><a href="#home">Home</a></li>
+                                <li class="menu-item active"><a href="view.php">Home</a></li>
                                 <li class="menu-item has-sub">
                                     <a href="#pages" class="nav-link">Pages</a>
 
                                     <ul>
                                         <li class="active"><a href="index.html">Home</a></li>
                                         <li><a href="index.html">About</a></li>
-                                        <li><a href="index.html">Styles</a></li>
                                         <li><a href="index.html">Blog</a></li>
-                                        <li><a href="index.html">Post Single</a></li>
-                                        <li><a href="index.html">Our Store</a></li>
-                                        <li><a href="index.html">Product Single</a></li>
                                         <li><a href="index.html">Contact</a></li>
                                         <li><a href="index.html">Thank You</a></li>
                                     </ul>
@@ -121,30 +129,26 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
                     <div class="main-slider pattern-overlay">
                         <div class="slider-item">
                             <div class="banner-content">
-                                <h2 class="banner-title">Life of the Wild</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero
-                                    ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis
-                                    urna, a eu.</p>
+                                <h2 class="banner-title">Ayat-Ayat Cinta</h2>
+                                <p>Ayat Ayat Cinta adalah novel yang sangat bagus dan lengkap kandungannya. Ini bukan hanya novel sastra dan cinta, tapi juga novel politik, novel budaya, novel reliji, novel fikih, novel etika, novel bahasa, dan novel dakwah. Sangat bagus untuk dibaca siapa saja.</p>
                                 <div class="btn-wrap">
                                     <a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i
                                             class="icon icon-ns-arrow-right"></i></a>
                                 </div>
                             </div><!--banner-content-->
-                            <img src="images/main-banner1.jpg" alt="banner" class="banner-image">
+                            <img src="images/ayat-ayat-cinta.png" alt="banner" class="banner-image">
                         </div><!--slider-item-->
 
                         <div class="slider-item">
                             <div class="banner-content">
-                                <h2 class="banner-title">Birds gonna be Happy</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero
-                                    ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis
-                                    urna, a eu.</p>
+                                <h2 class="banner-title">Dillan 1990</h2>
+                                <p>Novel “Dilan : Dia Adalah Dilanku Tahun 1990” bercerita tentang kisah cinta dua remaja Bandung pada tahun 90an. Berawal dari seorang siswa bernama Dilan yang jatuh cinta dengan siswi pindahan dari SMA di Jakarta bernama Milea. Dilan memiliki beragam cara untuk mendekati dan mencuri perhatian Milea.</p>
                                 <div class="btn-wrap">
                                     <a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i
                                             class="icon icon-ns-arrow-right"></i></a>
                                 </div>
                             </div><!--banner-content-->
-                            <img src="images/main-banner2.jpg" alt="banner" class="banner-image">
+                            <img src="images/buku-dilan.png" alt="banner" class="banner-image">
                         </div><!--slider-item-->
 
                     </div><!--slider-->
@@ -177,11 +181,16 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
         </div>
     </section>
 
+    <?php
+    $sql = "SELECT * FROM produk ORDER BY id DESC";
+    $result = mysqli_query($koneksi, $sql);
+    $products = mysqli_fetch_all($result, MYSQLI_ASSOC); // Konversi ke array asosiatif
+    ?>
+
     <section id="featured-books" class="py-5 my-5">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-
                     <div class="section-header align-center">
                         <div class="title">
                             <span>Some quality items</span>
@@ -191,83 +200,37 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
 
                     <div class="product-list" data-aos="fade-up">
                         <div class="row">
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="#" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Simple way of piece life</h3>
-                                        <span>Armor Ramsey</span>
-                                        <div class="item-price">$ 40.00</div>
-                                    </figcaption>
+                            <?php foreach ($products as $product): ?>
+                                <div class="col-md-3">
+                                    <div class="product-item">
+                                        <figure class="product-style">
+                                            <img src="<?= htmlspecialchars($product['Foto']) ?>"
+                                                alt="<?= htmlspecialchars($product['Nama_Buku']) ?>"
+                                                class="product-item">
+                                            <button type="button" class="add-to-cart" data-product-tile="add-to-cart">
+                                                Add to Cart
+                                            </button>
+                                        </figure>
+                                        <figcaption>
+                                            <h3><?= htmlspecialchars($product['Nama_Buku']) ?></h3>
+                                            <div class="item-price">Rp <?= number_format($product['Harga'], 0, ',', '.') ?></div>
+                                        </figcaption>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item2.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Great travel at desert</h3>
-                                        <span>Sanchit Howdy</span>
-                                        <div class="item-price">$ 38.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item3.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>The lady beauty Scarlett</h3>
-                                        <span>Arthur Doyle</span>
-                                        <div class="item-price">$ 45.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item4.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Once upon a time</h3>
-                                        <span>Klien Marry</span>
-                                        <div class="item-price">$ 35.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                        </div><!--ft-books-slider-->
-                    </div><!--grid-->
-
-
-                </div><!--inner-content-->
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="btn-wrap align-right">
-                        <a href="#" class="btn-accent-arrow">View all products <i
-                                class="icon icon-ns-arrow-right"></i></a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="btn-wrap align-right">
+                    <a href="#" class="btn-accent-arrow">View all products <i
+                            class="icon icon-ns-arrow-right"></i></a>
+                </div>
+
             </div>
         </div>
     </section>
@@ -283,7 +246,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
 
                         <div class="col-md-6">
                             <figure class="products-thumb">
-                                <img src="images/single-image.jpg" alt="book" class="single-image">
+                                <img src="images/ayat-ayat-cinta.png" alt="book" class="single-image">
                             </figure>
                         </div>
 
@@ -292,11 +255,10 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
                                 <h2 class="section-title divider">Best Selling Book</h2>
 
                                 <div class="products-content">
-                                    <div class="author-name">By Timbur Hood</div>
-                                    <h3 class="item-title">Birds gonna be happy</h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet,
-                                        libero ipsum enim pharetra hac.</p>
-                                    <div class="item-price">$ 45.00</div>
+                                    <div class="author-name">By Habiburrahman El Shirazy</div>
+                                    <h3 class="item-title">Ayat-Ayat Cinta</h3>
+                                    <p>Ayat Ayat Cinta adalah novel yang sangat bagus dan lengkap kandungannya. Ini bukan hanya novel sastra dan cinta, tapi juga novel politik, novel budaya, novel reliji, novel fikih, novel etika, novel bahasa, dan novel dakwah. Sangat bagus untuk dibaca siapa saja.</p>
+                                    <div class="item-price">Rp <?= number_format($product['Harga'], 0, ',', '.'); ?></div>
                                     <div class="btn-wrap">
                                         <a href="#" class="btn-accent-arrow">shop it now <i
                                                 class="icon icon-ns-arrow-right"></i></a>
@@ -900,145 +862,14 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
         </div>
     </section>
 
-    <section id="latest-blog" class="py-5 my-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="section-header align-center">
-                        <div class="title">
-                            <span>Read our articles</span>
-                        </div>
-                        <h2 class="section-title">Latest Articles</h2>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up">
-
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img1.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-
-                                <div class="post-item">
-                                    <div class="meta-date">Mar 30, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up" data-aos-delay="200">
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img2.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-                                <div class="post-item">
-                                    <div class="meta-date">Mar 29, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up" data-aos-delay="400">
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img3.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-                                <div class="post-item">
-                                    <div class="meta-date">Feb 27, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="btn-wrap align-center">
-                            <a href="#" class="btn btn-outline-accent btn-accent-arrow" tabindex="0">Read All Articles<i
-                                    class="icon icon-ns-arrow-right"></i></a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
     <section id="download-app" class="leaf-pattern-overlay">
         <div class="corner-pattern-overlay"></div>
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <!--<div class="col-md-8">
                     <div class="row">
-
-                        <div class="col-md-5">
+                        
+                         <div class="col-md-5">
                             <figure>
                                 <img src="images/device.png" alt="phone" class="single-image">
                             </figure>
@@ -1055,11 +886,11 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
                                     <img src="images/app-store.jpg" alt="app store">
                                 </div>
                             </div>
-                        </div>
+                        </div> 
 
-                    </div>
-                </div>
+            </div>-->
             </div>
+        </div>
         </div>
     </section>
 
@@ -1223,6 +1054,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'user') {
         crossorigin="anonymous"></script>
     <script src="js/plugins.js"></script>
     <script src="js/script.js"></script>
+    <!-- <script src="js/sticky-logo.js"></script> -->
 
 </body>
 

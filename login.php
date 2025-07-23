@@ -7,6 +7,52 @@ $error = "";
 if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
+
+    // Cek di kedua tabel (admin dan user)
+    $sql = "SELECT 'admin' as role, Username, Password FROM admin WHERE Username = ?
+            UNION ALL
+            SELECT 'user' as role, Username, Password FROM user WHERE Username = ?";
+
+    $stmt = mysqli_prepare($koneksi, $sql);
+
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "ss", $username, $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+
+            // Cek password (plain text atau hash)
+            if ($user['Password'] === $password || password_verify($password, $user['Password'])) {
+                $_SESSION['login'] = true;
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['username'] = $user['Username'];
+
+                // Redirect sesuai role
+                header("Location: " . ($user['role'] == 'admin' ? 'dashboard_admin.php' : 'view.php'));
+                exit;
+            } else {
+                $error = "Username atau Password Salah!";
+            }
+        } else {
+            $error = "Username atau Password Salah!";
+        }
+
+        mysqli_stmt_close($stmt);
+    } else {
+        $error = "Terjadi kesalahan dalam query!";
+    }
+}
+?>
+<!-- session_start();
+require_once "koneksi.php";
+
+$error = "";
+
+if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
     $role     = $_POST['role']; // diambil dari form (select box)
 
     // Tentukan table berdasarkan role
@@ -45,7 +91,7 @@ if (isset($_POST['login'])) {
         $error = "Terjadi kesalahan dalam query!";
     }
 }
-?>
+?> -->
 
 
 <!DOCTYPE html>
@@ -56,7 +102,37 @@ if (isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="css/login.css">
+    <style>
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+            color: #6c757d;
+            font-size: 1.2rem;
+        }
+
+        .password-toggle:hover {
+            color: #495057;
+        }
+
+        .form-control {
+            padding-right: 40px;
+        }
+
+        .form-control::placeholder {
+            color: #a0a0a0;
+            font-style: italic;
+        }
+    </style>
 </head>
 
 <body>
@@ -74,17 +150,20 @@ if (isset($_POST['login'])) {
                 <div class="mb-3">
                     <label class="form-label"></label>
                     <select name="role" class="form-select btn btn-secondary">
-                        <option class="btn btn-secondary" value="admin">Admin</option>
                         <option class="btn btn-secondary" value="user">User</option>
+                        <option class="btn btn-secondary" value="admin">Admin</option>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Masukkan Username" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="password-field">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Masukkan Password" required>
+                        <i class="bi bi-eye-slash password-toggle" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
+                    </div>
                 </div>
                 <button type="submit" name="login" class="btn btn-login btn-primary">Login</button>
                 <div class="text-center mt-3">
@@ -94,7 +173,22 @@ if (isset($_POST['login'])) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"></script>
+    <script>
+        function togglePasswordVisibility(inputId, toggleId) {
+            const passwordField = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(toggleId);
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            }
+        }
+    </script>
 </body>
 
 </html>
