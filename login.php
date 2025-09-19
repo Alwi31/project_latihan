@@ -9,9 +9,9 @@ if (isset($_POST['login'])) {
     $password = $_POST['password'];
 
     // Cek di kedua tabel (admin dan user)
-    $sql = "SELECT 'admin' as role, Username, Password FROM admin WHERE Username = ?
+    $sql = "SELECT 'admin' as role, username, Password FROM admin WHERE username = ?
             UNION ALL
-            SELECT 'user' as role, Username, Password FROM user WHERE Username = ?";
+            SELECT 'user' as role, username, Password FROM user WHERE username = ?";
 
     $stmt = mysqli_prepare($koneksi, $sql);
 
@@ -27,10 +27,10 @@ if (isset($_POST['login'])) {
             if ($user['Password'] === $password || password_verify($password, $user['Password'])) {
                 $_SESSION['login'] = true;
                 $_SESSION['role'] = $user['role'];
-                $_SESSION['username'] = $user['Username'];
+                $_SESSION['username'] = $user['username'];
 
                 // Redirect sesuai role
-                header("Location: " . ($user['role'] == 'admin' ? 'dashboard_admin.php' : 'view.php'));
+                header("Location: " . ($user['role'] == 'admin' ? 'dashboard_admin.php' : 'tampil.php'));
                 exit;
             } else {
                 $error = "Username atau Password Salah!";
@@ -45,55 +45,6 @@ if (isset($_POST['login'])) {
     }
 }
 ?>
-<!-- session_start();
-require_once "koneksi.php";
-
-$error = "";
-
-if (isset($_POST['login'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $role     = $_POST['role']; // diambil dari form (select box)
-
-    // Tentukan table berdasarkan role
-    $table = ($role == 'admin') ? 'admin' : 'user';
-
-    // Query cek user
-    $sql    = "SELECT * FROM $table WHERE Username = ?";
-    $stmt   = mysqli_prepare($koneksi, $sql);
-
-    if ($stmt) {
-        mysqli_stmt_bind_param($stmt, "s", $username);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        if (mysqli_num_rows($result) > 0) {
-            $user = mysqli_fetch_assoc($result);
-
-            // Cek password (harus sesuai huruf besar: 'Password')
-            if (isset($user['Password']) && password_verify($password, $user['Password'])) {
-                $_SESSION['login']    = true;
-                $_SESSION['role']     = $user['role'];      // dari kolom di DB
-                $_SESSION['username'] = $user['Username'];  // juga dari DB
-
-                // Redirect sesuai role (tetap pakai data input)
-                header("Location: " . ($role == 'admin' ? 'dashboard_admin.php' : 'view.php'));
-                exit;
-            } else {
-                $error = "Username atau Password Salah!";
-            }
-        } else {
-            $error = "Username atau Password Salah!";
-        }
-
-        mysqli_stmt_close($stmt);
-    } else {
-        $error = "Terjadi kesalahan dalam query!";
-    }
-}
-?> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -192,40 +143,3 @@ if (isset($_POST['login'])) {
 </body>
 
 </html>
-<!-- <div class="role-selector">
-    <button type="button" class="role-btn active" data-role="admin">Admin</button>
-    <button type="button" class="role-btn active" data-role="user">User</button>
-</div> -->
-
-<!-- if (isset($_POST['login'])) {
-$username = mysqli_real_escape_string($koneksi, $_POST['username']);
-$password = $_POST['password'];
-
-
-
-
-//Query untk cek Akun user
-$sql = "SELECT * FROM $table WHERE username = ?";
-
-if (mysqli_num_rows($result) > 0) {
-$user = mysqli_fetch_assoc($result);
-
-
-header("Location: " . ($role == 'admin' ? 'admin_dashboard.php' : 'user_dashboard.php'));
-} else {
-$error = "Username atau Password Salah!";
-}
-} else {
-$error = "Username atau Password Salah!";
-}
-mysqli_stmt_close($stmt);
-}
-
-//Script untk toogle role
-document.querySelectorAll('.role-btn').forEach(btn => {
-btn.addEventListener('click', function() {
-document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-this.classList.add('active');
-document.getElementById('selectedRole').value = this.dataset.role;
-});
-}); -->

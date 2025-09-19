@@ -34,10 +34,23 @@
                 text-align: center;
                 padding: 10px;
                 color: #ffffff;
+                position: relative;
             }
 
             .btn {
                 margin-left: 5px;
+            }
+
+            .user-menu {
+                position: absolute;
+                top: 15px;
+                right: 50px;
+                display: block;
+            }
+
+            .user-menu a {
+                text-decoration: none;
+                color: #ffffff;
             }
         </style>
     </head>
@@ -45,6 +58,9 @@
     <body>
         <div class="judul">
             <h2>Dashboard Admin</h2>
+        </div>
+        <div class="user-menu">
+            <a href="logout.php" class="btn">🚪Logout</a>
         </div>
         <br />
         <div class="mx-auto">
