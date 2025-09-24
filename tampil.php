@@ -1,38 +1,33 @@
 <?php
-require_once "koneksi.php";
+require_once "../config/Database.php";
 
-$sukses = $error = "";
-
-if (isset($_GET['sukses'])) {
-    $sukses = $_GET['sukses'];
+$koneksi = (new Database())->getConnection();
+session_start();
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'user') {
+    header("Location: login.php?message=login_required");
+    exit;
 }
 
-if (isset($_GET['error'])) {
-    $error = $_GET['error'];
-}
+$successMessage = isset($_GET['success']) ? $_GET['success'] : null;
+$errorMessage = isset($_GET['error']) ? $_GET['error'] : null;
+$pageTitle = "Home";
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>CRUD - Latihan Database Book</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="author" content="">
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
-    <link rel="stylesheet" type="text/css" href="css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="icomoon/icomoon.css">
-    <link rel="stylesheet" type="text/css" href="css/vendor.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <title><?= htmlspecialchars($pageTitle); ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" type="text/css" href="assets/normalize.css">
+    <link rel="stylesheet" type="text/css" href="../icomoon/icomoon.css">
+    <link rel="stylesheet" type="text/css" href="assets/vendor.css">
+    <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+    <!-- <link rel="stylesheet" href="./assets/sticky-logo.css"> -->
 
 </head>
 
@@ -42,10 +37,20 @@ if (isset($_GET['error'])) {
         <div class="top-content">
             <div class="container-fluid">
                 <div class="right-element">
-                    <a href="register.php" class="user-account for-buy"><i
-                            class="icon icon-user"></i><span>Daftar</span></a>
-                    <a href="login.php" class="user-account"><i class="icon icon-user"></i><span>Masuk</span></a>
-                </div><!--top-right-->
+                    <div class="user-profile-container">
+                        <div class="welcome-text">
+                            Selamat Datang,
+                            <?= htmlspecialchars($_SESSION['username']); ?>
+                        </div>
+                        <div class="menu-item user-menu">
+                            <a class="nav-link" href="#user-menu"><i class="icon icon-user"></i></a>
+                            <ul class="dropdown-content">
+                                <li><a href="settings.php">⚙️ Settings</a></li>
+                                <li><a href="../controller/AuthController.php?action=logout">🚪 Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div><!--top-content-->
@@ -53,59 +58,58 @@ if (isset($_GET['error'])) {
     <header id="header">
         <div class="container-fluid">
             <div class="row">
-
                 <div class="col-md-2">
                     <div class="main-logo">
-                        <?php
-                        // Cek apakah session login ada
-                        if (isset($_SESSION['login'])) {
-                            // Jika sudah login, arahkan ke view.php
-                            echo '<a href="view.php"><img src="images/main-logo.png" alt="logo"></a>';
-                        } else {
-                            // Jika belum login, arahkan ke index.php
-                            echo '<a href="index.php"><img src="images/main-logo.png" alt="logo"></a>';
-                        }
-                        ?>
+                        <a href="../index.php"><img src="../images/main-logo.png" alt="logo"></a>
                     </div>
-
                 </div>
+                <?php
+                if ($errorMessage): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($errorMessage); ?>
+                        <button type="button" class="btn-close"></button>
+                    </div>
+                <?php endif; ?>
 
-                <div class="col-md-10">
+                <?php if ($successMessage): ?>
+                    <div class="alert alert-success"><?= htmlspecialchars($successMessage); ?>
+                        <button type="button" class="btn-close"></button>
+                    </div>
+                <?php endif; ?>
+                <!-- </div> -->
+            </div>
 
-                    <nav id="navbar">
-                        <div class="main-menu stellarnav">
-                            <ul class="menu-list">
-                                <li class="menu-item active"><a href="#home">Home</a></li>
-                                <li class="menu-item has-sub">
-                                    <a href="#pages" class="nav-link">Pages</a>
+            <div class="col-md-10">
 
-                                    <ul>
-                                        <li class="active"><a href="index.html">Home</a></li>
-                                        <li><a href="index.html">About</a></li>
-                                        <li><a href="index.html">Styles</a></li>
-                                        <li><a href="index.html">Blog</a></li>
-                                        <li><a href="index.html">Post Single</a></li>
-                                        <li><a href="index.html">Our Store</a></li>
-                                        <li><a href="index.html">Product Single</a></li>
-                                        <li><a href="index.html">Contact</a></li>
-                                        <li><a href="index.html">Thank You</a></li>
-                                    </ul>
+                <nav id="navbar">
+                    <div class="main-menu stellarnav">
+                        <ul class="menu-list">
+                            <li class="menu-item active"><a href="view.php">Home</a></li>
+                            <li class="menu-item has-sub">
+                                <a href="#pages" class="nav-link">Pages</a>
 
-                                </li>
-                            </ul>
+                                <ul>
+                                    <li class="active"><a href="index.html">Home</a></li>
+                                    <li><a href="index.html">About</a></li>
+                                    <li><a href="index.html">Blog</a></li>
+                                    <li><a href="index.html">Contact</a></li>
+                                    <li><a href="index.html">Thank You</a></li>
+                                </ul>
 
-                            <div class="hamburger">
-                                <span class="bar"></span>
-                                <span class="bar"></span>
-                                <span class="bar"></span>
-                            </div>
+                            </li>
+                        </ul>
 
+                        <div class="hamburger">
+                            <span class="bar"></span>
+                            <span class="bar"></span>
+                            <span class="bar"></span>
                         </div>
-                    </nav>
 
-                </div>
+                    </div>
+                </nav>
 
             </div>
+
+        </div>
         </div>
     </header>
 
@@ -124,30 +128,26 @@ if (isset($_GET['error'])) {
                     <div class="main-slider pattern-overlay">
                         <div class="slider-item">
                             <div class="banner-content">
-                                <h2 class="banner-title">Life of the Wild</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero
-                                    ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis
-                                    urna, a eu.</p>
+                                <h2 class="banner-title">Ayat-Ayat Cinta</h2>
+                                <p>Ayat Ayat Cinta adalah novel yang sangat bagus dan lengkap kandungannya. Ini bukan hanya novel sastra dan cinta, tapi juga novel politik, novel budaya, novel reliji, novel fikih, novel etika, novel bahasa, dan novel dakwah. Sangat bagus untuk dibaca siapa saja.</p>
                                 <div class="btn-wrap">
                                     <a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i
                                             class="icon icon-ns-arrow-right"></i></a>
                                 </div>
                             </div><!--banner-content-->
-                            <img src="images/main-banner1.jpg" alt="banner" class="banner-image">
+                            <img src="../images/ayat-ayat-cinta.png" alt="banner" class="banner-image">
                         </div><!--slider-item-->
 
                         <div class="slider-item">
                             <div class="banner-content">
-                                <h2 class="banner-title">Birds gonna be Happy</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero
-                                    ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis
-                                    urna, a eu.</p>
+                                <h2 class="banner-title">Dillan 1990</h2>
+                                <p>Novel “Dilan : Dia Adalah Dilanku Tahun 1990” bercerita tentang kisah cinta dua remaja Bandung pada tahun 90an. Berawal dari seorang siswa bernama Dilan yang jatuh cinta dengan siswi pindahan dari SMA di Jakarta bernama Milea. Dilan memiliki beragam cara untuk mendekati dan mencuri perhatian Milea.</p>
                                 <div class="btn-wrap">
                                     <a href="#" class="btn btn-outline-accent btn-accent-arrow">Read More<i
                                             class="icon icon-ns-arrow-right"></i></a>
                                 </div>
                             </div><!--banner-content-->
-                            <img src="images/main-banner2.jpg" alt="banner" class="banner-image">
+                            <img src="../images/buku-dilan.png" alt="banner" class="banner-image">
                         </div><!--slider-item-->
 
                     </div><!--slider-->
@@ -162,17 +162,17 @@ if (isset($_GET['error'])) {
 
     </section>
 
-    <section id="client-holder" data-aos="fade-up">
+    <section id="client-holder" data-aos="fade-right">
         <div class="container">
             <div class="row">
                 <div class="inner-content">
                     <div class="logo-wrap">
                         <div class="grid">
-                            <a href="#"><img src="images/client-image1.png" alt="client"></a>
-                            <a href="#"><img src="images/client-image2.png" alt="client"></a>
-                            <a href="#"><img src="images/client-image3.png" alt="client"></a>
-                            <a href="#"><img src="images/client-image4.png" alt="client"></a>
-                            <a href="#"><img src="images/client-image5.png" alt="client"></a>
+                            <a href="#"><img src="../images/client-image1.png" alt="client"></a>
+                            <a href="#"><img src="../images/client-image2.png" alt="client"></a>
+                            <a href="#"><img src="../images/client-image3.png" alt="client"></a>
+                            <a href="#"><img src="../images/client-image4.png" alt="client"></a>
+                            <a href="#"><img src="../images/client-image5.png" alt="client"></a>
                         </div>
                     </div><!--image-holder-->
                 </div>
@@ -180,11 +180,16 @@ if (isset($_GET['error'])) {
         </div>
     </section>
 
+    <?php
+    $sql = "SELECT * FROM books ORDER BY id DESC";
+    $result = mysqli_query($koneksi, $sql);
+    $products = mysqli_fetch_all($result, MYSQLI_ASSOC); // Konversi ke array asosiatif
+    ?>
+
     <section id="featured-books" class="py-5 my-5">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-
                     <div class="section-header align-center">
                         <div class="title">
                             <span>Some quality items</span>
@@ -194,83 +199,37 @@ if (isset($_GET['error'])) {
 
                     <div class="product-list" data-aos="fade-up">
                         <div class="row">
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="#" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Simple way of piece life</h3>
-                                        <span>Armor Ramsey</span>
-                                        <div class="item-price">$ 40.00</div>
-                                    </figcaption>
+                            <?php foreach ($products as $product): ?>
+                                <div class="col-md-3">
+                                    <div class="product-item">
+                                        <figure class="product-style">
+                                            <img src="<?= htmlspecialchars($product['Foto']) ?>"
+                                                alt="<?= htmlspecialchars($product['Nama_Buku']) ?>"
+                                                class="product-item">
+                                            <button type="button" class="add-to-cart" data-product-tile="add-to-cart">
+                                                Add to Cart
+                                            </button>
+                                        </figure>
+                                        <figcaption>
+                                            <h3><?= htmlspecialchars($product['Nama_Buku']) ?></h3>
+                                            <div class="item-price">Rp <?= number_format($product['Harga'], 0, ',', '.') ?></div>
+                                        </figcaption>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item2.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Great travel at desert</h3>
-                                        <span>Sanchit Howdy</span>
-                                        <div class="item-price">$ 38.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item3.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>The lady beauty Scarlett</h3>
-                                        <span>Arthur Doyle</span>
-                                        <div class="item-price">$ 45.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                            <div class="col-md-3">
-                                <div class="product-item">
-                                    <figure class="product-style">
-                                        <img src="images/product-item4.jpg" alt="Books" class="product-item">
-                                        <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
-                                            Cart</button>
-                                    </figure>
-                                    <figcaption>
-                                        <h3>Once upon a time</h3>
-                                        <span>Klien Marry</span>
-                                        <div class="item-price">$ 35.00</div>
-                                    </figcaption>
-                                </div>
-                            </div>
-
-                        </div><!--ft-books-slider-->
-                    </div><!--grid-->
-
-
-                </div><!--inner-content-->
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="btn-wrap align-right">
-                        <a href="#" class="btn-accent-arrow">View all products <i
-                                class="icon icon-ns-arrow-right"></i></a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="btn-wrap align-right">
+                    <a href="#" class="btn-accent-arrow">View all products <i
+                            class="icon icon-ns-arrow-right"></i></a>
+                </div>
+
             </div>
         </div>
     </section>
@@ -286,7 +245,7 @@ if (isset($_GET['error'])) {
 
                         <div class="col-md-6">
                             <figure class="products-thumb">
-                                <img src="images/single-image.jpg" alt="book" class="single-image">
+                                <img src="../images/ayat-ayat-cinta.png" alt="book" class="single-image">
                             </figure>
                         </div>
 
@@ -295,11 +254,10 @@ if (isset($_GET['error'])) {
                                 <h2 class="section-title divider">Best Selling Book</h2>
 
                                 <div class="products-content">
-                                    <div class="author-name">By Timbur Hood</div>
-                                    <h3 class="item-title">Birds gonna be happy</h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet,
-                                        libero ipsum enim pharetra hac.</p>
-                                    <div class="item-price">$ 45.00</div>
+                                    <div class="author-name">By Habiburrahman El Shirazy</div>
+                                    <h3 class="item-title">Ayat-Ayat Cinta</h3>
+                                    <p>Ayat Ayat Cinta adalah novel yang sangat bagus dan lengkap kandungannya. Ini bukan hanya novel sastra dan cinta, tapi juga novel politik, novel budaya, novel reliji, novel fikih, novel etika, novel bahasa, dan novel dakwah. Sangat bagus untuk dibaca siapa saja.</p>
+                                    <div class="item-price">Rp <?= number_format($product['Harga'], 0, ',', '.'); ?></div>
                                     <div class="btn-wrap">
                                         <a href="#" class="btn-accent-arrow">shop it now <i
                                                 class="icon icon-ns-arrow-right"></i></a>
@@ -335,8 +293,7 @@ if (isset($_GET['error'])) {
                         <li data-tab-target="#business" class="tab">Business</li>
                         <li data-tab-target="#technology" class="tab">Technology</li>
                         <li data-tab-target="#romantic" class="tab">Romantic</li>
-                        <li data-tab-target="#adventure" class="tab">Adventure</li>
-                        <li data-tab-target="#fictional" class="tab">Fictional</li>
+                        <li data-tab-target="#adventure" class="tab">Fiction</li>
                     </ul>
 
                     <div class="tab-content">
@@ -346,15 +303,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="#" alt="Books" class="product-item">
+                                            <img src="../images/rumahKaca.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Portrait photography</h3>
-                                            <span>Adam Silber</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Rumah Kaca</h3>
+                                            <span>Pramoedya Ananta Toerr</span>
+                                            <div class="item-price">Rp 137.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -362,15 +319,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item2.jpg" alt="Books" class="product-item">
+                                            <img src="../images/kewirausahaanUMKM.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Once upon a time</h3>
-                                            <span>Klien Marry</span>
-                                            <div class="item-price">$ 35.00</div>
+                                            <h3>Kunci Keberlanjutan UMKM di Era Digital</h3>
+                                            <span>Ce Gunawan</span>
+                                            <div class="item-price">Rp 129.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -378,15 +335,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item3.jpg" alt="Books" class="product-item">
+                                            <img src="../images/buku_teknologi1.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Tips of simple lifestyle</h3>
-                                            <span>Bratt Smith</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Pemahaman Dasar Tentang Teknologi Media Dan Sumber Media Pembelajaran</h3>
+                                            <span>Wiene Surya Putra, S.Pd., M.Pd</span>
+                                            <div class="item-price">Rp 109.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -394,15 +351,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item4.jpg" alt="Books" class="product-item">
+                                            <img src="../images/kemarauseDanau.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Just felt from outside</h3>
-                                            <span>Nicole Wilson</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Kemarau di Sedanau</h3>
+                                            <span>Asroruddin Zoechni</span>
+                                            <div class="item-price">Rp 79.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -413,15 +370,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item5.jpg" alt="Books" class="product-item">
+                                            <img src="../images/anjani.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Peaceful Enlightment</h3>
-                                            <span>Marmik Lama</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Anjani</h3>
+                                            <span>Nuning Soedibjo</span>
+                                            <div class="item-price">Rp 99.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -429,15 +386,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item6.jpg" alt="Books" class="product-item">
+                                            <img src="../images/strategiJasa.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Great travel at desert</h3>
-                                            <span>Sanchit Howdy</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Strategi Peningkatan Kualitas Layanan Jasa</h3>
+                                            <span>Yupi Yuliawati</span>
+                                            <div class="item-price">Rp 79.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -445,15 +402,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item7.jpg" alt="Books" class="product-item">
+                                            <img src="../images/perkembanganteknologi.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Life among the pirates</h3>
-                                            <span>Armor Ramsey</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Perkembangan Teknologi Komunikasi</h3>
+                                            <span>Fadhil Pahlevi Hidayat,S.I.Kom., M.I.Kom.</span>
+                                            <div class="item-price">Rp 52.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -461,15 +418,15 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item8.jpg" alt="Books" class="product-item">
+                                            <img src="../images/popularbooks8.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
                                         </figure>
                                         <figcaption>
-                                            <h3>Simple way of piece life</h3>
-                                            <span>Armor Ramsey</span>
-                                            <div class="item-price">$ 40.00</div>
+                                            <h3>Perfect Imperfections</h3>
+                                            <span>Nathalia Theodora</span>
+                                            <div class="item-price">Rp 79.000</div>
                                         </figcaption>
                                     </div>
                                 </div>
@@ -482,7 +439,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item2.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item2.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -498,7 +455,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item4.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item4.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -514,7 +471,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item6.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item6.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -530,7 +487,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item8.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item8.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -551,7 +508,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item1.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item1.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -567,7 +524,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item3.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item3.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -583,7 +540,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item5.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item5.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -599,7 +556,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item7.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item7.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -619,7 +576,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item1.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item1.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -635,7 +592,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item3.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item3.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -651,7 +608,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item5.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item5.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -667,7 +624,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item7.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item7.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -687,7 +644,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item5.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item5.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -703,7 +660,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item7.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item7.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -723,7 +680,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item5.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item5.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -739,7 +696,7 @@ if (isset($_GET['error'])) {
                                 <div class="col-md-3">
                                     <div class="product-item">
                                         <figure class="product-style">
-                                            <img src="images/tab-item7.jpg" alt="Books" class="product-item">
+                                            <img src="../images/tab-item7.jpg" alt="Books" class="product-item">
                                             <button type="button" class="add-to-cart"
                                                 data-product-tile="add-to-cart">Add to
                                                 Cart</button>
@@ -789,52 +746,52 @@ if (isset($_GET['error'])) {
                         <div class="grid product-grid">
                             <div class="product-item">
                                 <figure class="product-style">
-                                    <img src="images/product-item5.jpg" alt="Books" class="product-item">
+                                    <img src="../images/bukudiskon1.jpg" alt="Books" class="product-item">
                                     <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
                                         Cart</button>
                                 </figure>
                                 <figcaption>
-                                    <h3>Simple way of piece life</h3>
-                                    <span>Armor Ramsey</span>
+                                    <h3>Perayaan dari Masa Depan</h3>
+                                    <span>Zemiko</span>
                                     <div class="item-price">
-                                        <span class="prev-price">$ 50.00</span>$ 40.00
+                                        <span class="prev-price">Rp 99.000</span>Rp 89.100
                                     </div>
                             </div>
                             </figcaption>
 
                             <div class="product-item">
                                 <figure class="product-style">
-                                    <img src="images/product-item6.jpg" alt="Books" class="product-item">
+                                    <img src="../images/bukudiskon2jpg.jpg" alt="Books" class="product-item">
                                     <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
                                         Cart</button>
                                 </figure>
                                 <figcaption>
-                                    <h3>Great travel at desert</h3>
-                                    <span>Sanchit Howdy</span>
+                                    <h3>Data Mining</h3>
+                                    <span>Lailil Muflikhah, Dian Eka Ratnawati, Rekyan Regasari Mardi Putri</span>
                                     <div class="item-price">
-                                        <span class="prev-price">$ 30.00</span>$ 38.00
+                                        <span class="prev-price">Rp 109.000</span>Rp 98.100
                                     </div>
                             </div>
                             </figcaption>
 
                             <div class="product-item">
                                 <figure class="product-style">
-                                    <img src="images/product-item7.jpg" alt="Books" class="product-item">
+                                    <img src="../images/bukudiskon3.jpg" alt="Books" class="product-item">
                                     <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
                                         Cart</button>
                                 </figure>
                                 <figcaption>
-                                    <h3>The lady beauty Scarlett</h3>
-                                    <span>Arthur Doyle</span>
+                                    <h3>Manajemen Resiko</h3>
+                                    <span>Suharno, S.E., M.M.</span>
                                     <div class="item-price">
-                                        <span class="prev-price">$ 35.00</span>$ 45.00
+                                        <span class="prev-price">Rp 99.000</span>Rp 89.100
                                     </div>
                             </div>
                             </figcaption>
 
                             <div class="product-item">
                                 <figure class="product-style">
-                                    <img src="images/product-item8.jpg" alt="Books" class="product-item">
+                                    <img src="../images/product-item8.jpg" alt="Books" class="product-item">
                                     <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
                                         Cart</button>
                                 </figure>
@@ -849,7 +806,7 @@ if (isset($_GET['error'])) {
 
                             <div class="product-item">
                                 <figure class="product-style">
-                                    <img src="images/product-item2.jpg" alt="Books" class="product-item">
+                                    <img src="../images/product-item2.jpg" alt="Books" class="product-item">
                                     <button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
                                         Cart</button>
                                 </figure>
@@ -866,206 +823,6 @@ if (isset($_GET['error'])) {
         </div>
     </section>
 
-    <section id="subscribe">
-        <div class="container">
-            <div class="row justify-content-center">
-
-                <div class="col-md-8">
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <div class="title-element">
-                                <h2 class="section-title divider">Subscribe to our newsletter</h2>
-                            </div>
-
-                        </div>
-                        <div class="col-md-6">
-
-                            <div class="subscribe-content" data-aos="fade-up">
-                                <p>Sed eu feugiat amet, libero ipsum enim pharetra hac dolor sit amet, consectetur. Elit
-                                    adipiscing enim pharetra hac.</p>
-                                <form id="form">
-                                    <input type="text" name="email" placeholder="Enter your email addresss here">
-                                    <button class="btn-subscribe">
-                                        <span>send</span>
-                                        <i class="icon icon-send"></i>
-                                    </button>
-                                </form>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <section id="latest-blog" class="py-5 my-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-
-                    <div class="section-header align-center">
-                        <div class="title">
-                            <span>Read our articles</span>
-                        </div>
-                        <h2 class="section-title">Latest Articles</h2>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up">
-
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img1.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-
-                                <div class="post-item">
-                                    <div class="meta-date">Mar 30, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up" data-aos-delay="200">
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img2.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-                                <div class="post-item">
-                                    <div class="meta-date">Mar 29, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-                        <div class="col-md-4">
-
-                            <article class="column" data-aos="fade-up" data-aos-delay="400">
-                                <figure>
-                                    <a href="#" class="image-hvr-effect">
-                                        <img src="images/post-img3.jpg" alt="post" class="post-image">
-                                    </a>
-                                </figure>
-                                <div class="post-item">
-                                    <div class="meta-date">Feb 27, 2021</div>
-                                    <h3><a href="#">Reading books always makes the moments happy</a></h3>
-
-                                    <div class="links-element">
-                                        <div class="categories">inspiration</div>
-                                        <div class="social-links">
-                                            <ul>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-facebook"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-twitter"></i></a>
-                                                </li>
-                                                <li>
-                                                    <a href="#"><i class="icon icon-behance-square"></i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div><!--links-element-->
-
-                                </div>
-                            </article>
-
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="btn-wrap align-center">
-                            <a href="#" class="btn btn-outline-accent btn-accent-arrow" tabindex="0">Read All Articles<i
-                                    class="icon icon-ns-arrow-right"></i></a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="download-app" class="leaf-pattern-overlay">
-        <div class="corner-pattern-overlay"></div>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="row">
-
-                        <div class="col-md-5">
-                            <figure>
-                                <img src="images/device.png" alt="phone" class="single-image">
-                            </figure>
-                        </div>
-
-                        <div class="col-md-7">
-                            <div class="app-info">
-                                <h2 class="section-title divider">Download our app now !</h2>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus
-                                    liberolectus nonet psryroin. Amet sed lorem posuere sit iaculis amet, ac urna.
-                                    Adipiscing fames semper erat ac in suspendisse iaculis.</p>
-                                <div class="google-app">
-                                    <img src="images/google-play.jpg" alt="google play">
-                                    <img src="images/app-store.jpg" alt="app store">
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <footer id="footer">
         <div class="container">
             <div class="row">
@@ -1074,10 +831,10 @@ if (isset($_GET['error'])) {
 
                     <div class="footer-item">
                         <div class="company-brand">
-                            <img src="images/main-logo.png" alt="logo" class="footer-logo">
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus
+                            <img src="../images/logo-view-awal-removebg-preview.png" alt="logo" class="footer-logo">
+                            <!-- <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus
                                 nonet psryroin. Amet sed lorem posuere sit iaculis amet, ac urna. Adipiscing fames
-                                semper erat ac in suspendisse iaculis.</p>
+                                semper erat ac in suspendisse iaculis.</p> -->
                         </div>
                     </div>
 
@@ -1089,43 +846,13 @@ if (isset($_GET['error'])) {
                         <h5>About Us</h5>
                         <ul class="menu-list">
                             <li class="menu-item">
-                                <a href="#">vision</a>
+                                <a href="#">Vision</a>
                             </li>
                             <li class="menu-item">
-                                <a href="#">articles </a>
+                                <a href="#">Articles </a>
                             </li>
                             <li class="menu-item">
-                                <a href="#">careers</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">service terms</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">donate</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                </div>
-                <div class="col-md-2">
-
-                    <div class="footer-menu">
-                        <h5>Discover</h5>
-                        <ul class="menu-list">
-                            <li class="menu-item">
-                                <a href="#">Home</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">Books</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">Authors</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">Subjects</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">Advanced Search</a>
+                                <a href="#">Service Terms</a>
                             </li>
                         </ul>
                     </div>
@@ -1138,9 +865,6 @@ if (isset($_GET['error'])) {
                         <ul class="menu-list">
                             <li class="menu-item">
                                 <a href="#">Sign In</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">View Cart</a>
                             </li>
                             <li class="menu-item">
                                 <a href="#">My Wishtlist</a>
@@ -1162,9 +886,6 @@ if (isset($_GET['error'])) {
                             </li>
                             <li class="menu-item">
                                 <a href="#">Report a problem</a>
-                            </li>
-                            <li class="menu-item">
-                                <a href="#">Suggesting edits</a>
                             </li>
                             <li class="menu-item">
                                 <a href="#">Contact us</a>
@@ -1224,8 +945,9 @@ if (isset($_GET['error'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
         crossorigin="anonymous"></script>
-    <script src="js/plugins.js"></script>
-    <script src="js/script.js"></script>
+    <script src="../js/plugins.js"></script>
+    <script src="../js/script.js"></script>
+    <!-- <script src="js/sticky-logo.js"></script> -->
 
 </body>
 

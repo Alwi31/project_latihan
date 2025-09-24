@@ -1,0 +1,133 @@
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-select {
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%) !important;
+  border: none !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
+  border-radius: 10px !important;
+  padding: 10px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.3 ease !important;
+}
+
+/* Style untuk opsi dropdown */
+.form-select option {
+  background: white;
+  color: #333;
+  cursor: pointer !important;
+  padding: 8px;
+  transition: all 0.2 ease;
+}
+
+/* Hover state untuk select */
+.form-select option:hover {
+  background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%) !important;
+  color: white !important;
+  cursor: pointer;
+}
+
+/* Focus state untuk select */
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
+  cursor: pointer;
+  border-color: #667eea !important;
+}
+
+.register-container {
+  max-width: 450px;
+  width: 100%;
+  margin: 100px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 15 35px rgba(137, 81, 81, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.register-header h2 {
+  color: #343a40;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.btn-register {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: bold;
+  transition: all 0.3 ease;
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.alert {
+  border-radius: 10px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+.login-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+.form-control {
+  border: 2px solid #e1e5e9;
+  border-radius: 10px;
+  transition: all 0.3 ease;
+  padding-right: 40px;
+}
+.form-control::placeholder {
+  color: #a0a0a0;
+  font-style: italic;
+}
+.form-label {
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* CSS untk togglePassword */
+.password-field {
+  position: relative;
+}
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 10;
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+.password-toggle:hover {
+  color: #495057;
+}
+
+.password-field .form-control {
+  padding-right: 45px;
+}
